@@ -1,0 +1,19 @@
+{
+  "name": "fil-erc20-actor-as",
+  "description": "FVM actor example for erc20 contract",
+  "author": "Zondax AG",
+  "license": "Apache-2.0",
+  "repository": "git@github.com:Zondax/fil-erc20-actor-as.git",
+  "scripts": {
+    "asbuild": "asc assembly/index.ts --target release --use abort="
+  },
+  "dependencies": {
+    "@zondax/assemblyscript-cbor": "^0.3.1",
+    "@zondax/fvm-as-sdk": "^0.2.0"
+  },
+  "homepage": "https://github.com/Zondax/fil-erc20-actor-as#readme",
+  "private": true,
+  "devDependencies": {
+    "assemblyscript": "^0.20.11"
+  }
+}
