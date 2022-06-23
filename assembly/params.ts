@@ -30,7 +30,7 @@ export class BalancesOfParams {
   public addr: string;
 
   constructor(raw: Uint8Array) {
-    const paramsArray = fromRaw(raw, InitParams.paramsLen);
+    const paramsArray = fromRaw(raw, BalancesOfParams.paramsLen);
 
     this.addr = (paramsArray[0] as Str).valueOf();
 
@@ -46,7 +46,7 @@ export class TransferParams {
   public transferAmount: u64;
 
   constructor(raw: Uint8Array) {
-    const paramsArray = fromRaw(raw, InitParams.paramsLen);
+    const paramsArray = fromRaw(raw, TransferParams.paramsLen);
 
     this.receiverAddr = (paramsArray[0] as Str).valueOf();
     this.transferAmount = (paramsArray[1] as Integer).valueOf() as u64;
@@ -63,7 +63,7 @@ export class AllowanceParams {
   public spenderAddr: string;
 
   constructor(raw: Uint8Array) {
-    const paramsArray = fromRaw(raw, InitParams.paramsLen);
+    const paramsArray = fromRaw(raw, AllowanceParams.paramsLen);
 
     this.ownerAddr = (paramsArray[0] as Str).valueOf();
     this.spenderAddr = (paramsArray[1] as Str).valueOf();
@@ -81,7 +81,7 @@ export class TransferFromParams {
   public transferAmount: u64;
 
   constructor(raw: Uint8Array) {
-    const paramsArray = fromRaw(raw, InitParams.paramsLen);
+    const paramsArray = fromRaw(raw, TransferFromParams.paramsLen);
 
     this.ownerAddr = (paramsArray[0] as Str).valueOf();
     this.receiverAddr = (paramsArray[1] as Str).valueOf();
@@ -99,7 +99,7 @@ export class ApprovalParams {
   public newAllowance: u64;
 
   constructor(raw: Uint8Array) {
-    const paramsArray = fromRaw(raw, InitParams.paramsLen);
+    const paramsArray = fromRaw(raw, ApprovalParams.paramsLen);
 
     this.spenderAddr = (paramsArray[0] as Str).valueOf();
     this.newAllowance = (paramsArray[1] as Integer).valueOf() as u64;

@@ -33,8 +33,6 @@ export class State extends BaseState {
       balances,
       allowed
     );
-
-    this.token.Balances.set(caller().toString(), totalSupply);
   }
 
   // This function should only indicate how to serialize the store into CBOR
@@ -80,20 +78,18 @@ export class State extends BaseState {
   }
 
   getBalanceOf(addr: string): u64 {
-    const balance = this.token.Balances.get(addr);
-    if (!balance) return 0;
+    const has = this.token.Balances.has(addr);
+    if (has) return this.token.Balances.get(addr);
 
-    return balance;
+    return 0;
   }
 
   getAllowance(ownerAddr: string, spenderAddr: string): u64 {
-    const allowance = this.token.Allowed.get(
-      getAllowKey(ownerAddr, spenderAddr)
-    );
+    const has = this.token.Allowed.has(getAllowKey(ownerAddr, spenderAddr));
 
-    if (!allowance) return 0;
+    if (has) return this.token.Allowed.get(getAllowKey(ownerAddr, spenderAddr));
 
-    return allowance;
+    return 0;
   }
 
   // This function should only indicate how to convert from a generic object model to this state class
@@ -107,7 +103,7 @@ export class State extends BaseState {
     const name = (state.get("name") as Str).valueOf();
     const symbol = (state.get("symbol") as Str).valueOf();
 
-    const decimals = (state.get("decimal") as Integer).valueOf() as u8;
+    const decimals = (state.get("decimals") as Integer).valueOf() as u8;
 
     const totalSupply = (state.get("total_supply") as Integer).valueOf() as u64;
 

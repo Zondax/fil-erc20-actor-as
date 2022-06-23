@@ -37,6 +37,7 @@ export function checkBalance(balance: u64, addr: string): void {
       `Balance of sender ${addr} is ${balance}`
     );
   }
+  return;
 }
 
 export function getAllowKey(ownerAddr: string, spenderAddr: string): string {

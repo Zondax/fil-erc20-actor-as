@@ -24,12 +24,13 @@ enum Methods {
 @constructor
 // params: [name, symbol, decimal, totalSupply]
 function init(rawParams: ParamsRawResult): void {
-  const params = new InitParams(rawParams.raw)
-  const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
+    const params = new InitParams(rawParams.raw)
+    const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
 
-  state.save();
+    state.token.Balances.set(caller().toString(), params.totalSupply);
 
-  return;
+    state.save();
+    return;
 }
 
 // @ts-ignore
@@ -103,7 +104,7 @@ function Transfer(rawParams: ParamsRawResult): Uint8Array {
     checkBalance(balanceOfSender, senderAddr)
 
     if(balanceOfSender < params.transferAmount) {
-        genericAbort(USR_ASSERTION_FAILED, "transfer amount should be less than or equal to balance of sender (${senderAddr})")
+        genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than or equal to balance of sender (${senderAddr})`)
     }
 
     const balanceOfReciever = state.getBalanceOf(params.receiverAddr)
@@ -114,7 +115,7 @@ function Transfer(rawParams: ParamsRawResult): Uint8Array {
     state.token.Balances.set(params.receiverAddr, newBalanceReceiver)
 
     state.save()
-    const msg = `from ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount}`
+    const msg = `from ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount}}`
     return stringToUint8Array(msg)
 }
 
