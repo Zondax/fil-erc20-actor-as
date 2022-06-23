@@ -98,74 +98,46 @@ export class State extends BaseState {
 
   // This function should only indicate how to convert from a generic object model to this state class
   protected parse(rawState: Value): State {
-    let name: string;
-    let symbol: string;
-    let decimals: u8;
-    let totalSupply: u64;
     let balances = new Map<string, u64>();
     let allowed = new Map<string, u64>();
 
-    if (rawState.isObj) {
-      // Here we cast as object as we know that is what we saved before
-      const state = rawState as Obj;
+    // Here we cast as object as we know that is what we saved before
+    const state = rawState as Obj;
 
-      if (state.has("name")) name = (state.get("name") as Str).valueOf();
-      if (state.has("symbol")) symbol = (state.get("symbol") as Str).valueOf();
-      if (state.has("decimals"))
-        decimals = (state.get("decimal") as Integer).valueOf() as u8;
+    const name = (state.get("name") as Str).valueOf();
+    const symbol = (state.get("symbol") as Str).valueOf();
 
-      if (state.has("total_supply"))
-        totalSupply = (state.get("total_supply") as Integer).valueOf() as u64;
+    const decimals = (state.get("decimal") as Integer).valueOf() as u8;
 
-      // Get balances
-      if (state.has("balances")) {
-        let tmp: Map<String, Value> = new Map<String, Value>();
-        tmp = (state.get("balances") as Obj).valueOf();
+    const totalSupply = (state.get("total_supply") as Integer).valueOf() as u64;
 
-        const keys = tmp.keys();
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const value = tmp.get(key);
-          if (value.isUndefined) {
-            genericAbort(USR_ILLEGAL_ARGUMENT, "failed to parse balances");
-          }
-          const addrID = (value as Integer).valueOf();
-          balances.set(key.toString(), addrID as u64);
-        }
+    // Get balances
+    let tmp: Map<String, Value> = new Map<String, Value>();
+    tmp = (state.get("balances") as Obj).valueOf();
+
+    let keys = tmp.keys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = tmp.get(key);
+      if (value.isUndefined) {
+        genericAbort(USR_ILLEGAL_ARGUMENT, "failed to parse balances");
       }
+      const addrID = (value as Integer).valueOf();
+      balances.set(key.toString(), addrID as u64);
+    }
 
-      // Get allowed
-      if (state.has("allowed")) {
-        let tmp: Map<String, Value> = new Map<String, Value>();
-        tmp = (state.get("allowed") as Obj).valueOf();
+    // Get allowed
+    tmp = (state.get("allowed") as Obj).valueOf();
 
-        const keys = tmp.keys();
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const value = tmp.get(key);
-          if (value.isUndefined) {
-            genericAbort(USR_ILLEGAL_ARGUMENT, "failed to parse allowed");
-          }
-          const addrID = (value as Integer).valueOf();
-          allowed.set(key.toString(), addrID as u64);
-        }
+    keys = tmp.keys();
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = tmp.get(key);
+      if (value.isUndefined) {
+        genericAbort(USR_ILLEGAL_ARGUMENT, "failed to parse allowed");
       }
-    }
-
-    if (!name) {
-      genericAbort(USR_ILLEGAL_ARGUMENT, "undefined state: name");
-    }
-
-    if (!symbol) {
-      genericAbort(USR_ILLEGAL_ARGUMENT, "undefined state: symbol");
-    }
-
-    if (!decimals) {
-      genericAbort(USR_ILLEGAL_ARGUMENT, "undefined state: decimals");
-    }
-
-    if (!totalSupply) {
-      genericAbort(USR_ILLEGAL_ARGUMENT, "undefined state: totalSupply");
+      const addrID = (value as Integer).valueOf();
+      allowed.set(key.toString(), addrID as u64);
     }
 
     return new State(name, symbol, decimals, totalSupply, balances, allowed);
