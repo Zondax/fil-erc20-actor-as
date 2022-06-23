@@ -9,28 +9,32 @@ import { Get } from "@zondax/fvm-as-sdk/assembly/helpers";
 import { USR_ILLEGAL_ARGUMENT } from "@zondax/fvm-as-sdk/assembly/env";
 import { CBOREncoder } from "@zondax/assemblyscript-cbor/assembly";
 import { genericAbort, caller } from "@zondax/fvm-as-sdk/assembly/wrappers";
-import { ConstructorReq, Erc20Token } from "./types";
+import { Erc20Token } from "./models";
+import { getAllowKey } from "./utils";
 
 export class State extends BaseState {
   token: Erc20Token;
 
   constructor(
-    Name: string,
-    Symbol: string,
-    Decimals: u8,
-    TotalSupply: u64,
-    Balances: Map<string, u64>,
-    Allowed: Map<string, u64>
+    name: string,
+    symbol: string,
+    decimals: u8,
+    totalSupply: u64,
+    balances: Map<string, u64>,
+    allowed: Map<string, u64>
   ) {
     super();
-    this.token.Name = Name;
-    this.token.Symbol = Symbol;
-    this.token.Decimals = Decimals;
-    this.token.TotalSupply = TotalSupply;
-    this.token.Balances = new Map<string, u64>();
-    this.token.Allowed = new Map<string, u64>();
 
-    this.token.Balances.set(caller().toString(), TotalSupply);
+    this.token = new Erc20Token(
+      name,
+      symbol,
+      decimals,
+      totalSupply,
+      balances,
+      allowed
+    );
+
+    this.token.Balances.set(caller().toString(), totalSupply);
   }
 
   // This function should only indicate how to serialize the store into CBOR
@@ -73,6 +77,23 @@ export class State extends BaseState {
     }
 
     return encoder.serialize();
+  }
+
+  getBalanceOf(addr: string): u64 {
+    const balance = this.token.Balances.get(addr);
+    if (!balance) return 0;
+
+    return balance;
+  }
+
+  getAllowance(ownerAddr: string, spenderAddr: string): u64 {
+    const allowance = this.token.Allowed.get(
+      getAllowKey(ownerAddr, spenderAddr)
+    );
+
+    if (!allowance) return 0;
+
+    return allowance;
   }
 
   // This function should only indicate how to convert from a generic object model to this state class
@@ -151,7 +172,13 @@ export class State extends BaseState {
   }
 
   static load(): State {
-    const emptyMap = new Map<String, u64>();
-    return new State().load() as State;
+    return new State(
+      "",
+      "",
+      0,
+      0,
+      new Map<string, u64>(),
+      new Map<string, u64>()
+    ).load() as State;
   }
 }

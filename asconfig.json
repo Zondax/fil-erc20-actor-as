@@ -1,5 +1,13 @@
 {
   "targets": {
+    "debug": {
+      "outFile": "build/debug.wasm",
+      "textFile": "build/debug.wat",
+      "disable": "bulk-memory",
+      "exportStart": "init",
+      "debug": true,
+      "stats": true
+    },
     "release": {
       "outFile": "build/release.wasm",
       "textFile": "build/release.wat",

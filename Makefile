@@ -4,7 +4,7 @@ deps:
 
 build:
 	yarn asbuild
-	wizer build/release.wasm -f init -o fil-fns-actor.wasm
+	wizer build/release.wasm -f init -o fil-erc20-actor.wasm
 
 test:
 	cd testing && cargo r
