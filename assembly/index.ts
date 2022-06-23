@@ -58,7 +58,7 @@ function GetSymbol(rawParams: ParamsRawResult): Uint8Array {
 function GetDecimal(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
-    const msg = `Token symbol: ${state.token.Decimals}`
+    const msg = `Token decimal: ${state.token.Decimals}`
     return stringToUint8Array(msg)
 }
 
@@ -68,7 +68,7 @@ function GetDecimal(rawParams: ParamsRawResult): Uint8Array {
 function GetTotalSupply(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
-    const msg = `Token symbol: ${state.token.TotalSupply}`
+    const msg = `Token total supply: ${state.token.TotalSupply}`
     return stringToUint8Array(msg)
 }
 
