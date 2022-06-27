@@ -93,18 +93,18 @@ export class State extends BaseState {
     let allowed = new Map<string, u64>();
 
     // Here we cast as object as we know that is what we saved before
-    const state = rawState as Arr;
+    const state = (rawState as Arr).valueOf();
 
-    const name = (state.pop() as Str).valueOf();
-    const symbol = (state.pop() as Str).valueOf();
+    const name = (state[0] as Str).valueOf();
+    const symbol = (state[1] as Str).valueOf();
 
-    const decimals = (state.pop() as Integer).valueOf() as u8;
+    const decimals = (state[2] as Integer).valueOf() as u8;
 
-    const totalSupply = (state.pop() as Integer).valueOf() as u64;
+    const totalSupply = (state[3] as Integer).valueOf() as u64;
 
     // Get balances
     let tmp: Map<String, Value> = new Map<String, Value>();
-    tmp = (state.pop() as Obj).valueOf();
+    tmp = (state[4] as Obj).valueOf();
 
     let keys = tmp.keys();
     for (let i = 0; i < keys.length; i++) {
@@ -118,7 +118,7 @@ export class State extends BaseState {
     }
 
     // Get allowed
-    tmp = (state.pop() as Obj).valueOf();
+    tmp = (state[5] as Obj).valueOf();
 
     keys = tmp.keys();
     for (let i = 0; i < keys.length; i++) {
