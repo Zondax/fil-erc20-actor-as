@@ -7,10 +7,10 @@
   resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.3.1.tgz#ef0f2382f667e758df8ea2604e87894e33f388fb"
   integrity sha512-zj1d70d8eKZG/drSPDaQC982zCWSM2I0oLEWYK1LQ5g6bnKPdI33cniqnuzomtkGPRvKqGPx+kClfhDMkXSYDQ==
 
-"@zondax/assemblyscript-cbor@^0.4.0":
-  version "0.4.0"
-  resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.4.0.tgz#2700cb573ddc5c73f9eff77afddb90af2a450679"
-  integrity sha512-cthGG8RGrgZltY2zWbMi9dc/sIIu+ULa3gM50kwpB2vYY548nL7j849hLPLmsZj2GXA7WVVNzCWq+CSq8NeWhQ==
+"@zondax/assemblyscript-cbor@^0.5.1":
+  version "0.5.1"
+  resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.5.1.tgz#9c24068c510b665f32bd107af9f748680d8d419f"
+  integrity sha512-k0iuZCMcEOk0oildpPTHL1ioudryO8rr6FDTu24it63QLc8jwKIvCIoOkwCYG8ChZRbJNiU3N5C4Pq1aaQcpFA==
 
 "@zondax/fvm-as-bindgen@^0.5.0":
   version "0.5.0"
@@ -20,9 +20,9 @@
     assemblyscript "^0.20.11"
 
 "@zondax/fvm-as-sdk@^0.4.1":
-  version "0.4.1"
-  resolved "https://verdaccio.zondax.net/@zondax%2ffvm-as-sdk/-/fvm-as-sdk-0.4.1.tgz#b35b6b4d770247d507327ab9ff4f98ee191362af"
-  integrity sha512-QV9SDuUyRY/xn8L2wKO3theQTNPk0QbYKYfuV989vKRXfnMElK8yHjK3d42dMFlxLOGa5RkjmhJHPSh9cKaDEQ==
+  version "0.4.2"
+  resolved "https://verdaccio.zondax.net/@zondax%2ffvm-as-sdk/-/fvm-as-sdk-0.4.2.tgz#d932f5b53593be808102f70f01f1884fb7dc36e4"
+  integrity sha512-UwYthy1xmsKB/35vCvn3AhBcP0oPOSoHnGch7EShJqSVKqey+RWqezAqDpoi+oCQzeCMrv2Ew4ik6SrC3MOiJQ==
   dependencies:
     "@zondax/assemblyscript-cbor" "^0.3.1"
     as-bigint "^0.5.3"
@@ -33,9 +33,9 @@ as-bigint@^0.5.3:
   integrity sha512-tg9iTO/vPeovOM5CSk1WxYcsfBd/cd3twhBW5PrpcGUfiSEXlPB69eOxFKvSbZnpuDxBAyQ4YBgEkfnYL89Czw==
 
 assemblyscript@^0.20.11:
-  version "0.20.12"
-  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.20.12.tgz#eb57f25c81c4846c01a14201fd7d049efb33a80f"
-  integrity sha512-qE+vB2WZQVFQk5AYZ6568sqWV39zw3cmvmo0k0tL0EiqkbrWHhKw+X+S+6/NJdCrgW6ENgZNxxExe4/fNHBLCw==
+  version "0.20.13"
+  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.20.13.tgz#28da2a392172953610b0407c02ee0248b7c723e8"
+  integrity sha512-F4ACXdBdXCBnPEzRCl/ovFFPGmKXQPvWW4cM6U21eRezaCoREqxA0hjSUOYTz7txY3MJclyBfjwMSEJ5e9HKsw==
   dependencies:
     binaryen "108.0.0-nightly.20220528"
     long "^5.2.0"
