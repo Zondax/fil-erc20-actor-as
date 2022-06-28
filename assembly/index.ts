@@ -32,7 +32,7 @@ function init(rawParams: ParamsRawResult): void {
     const params = new InitParams(rawParams.raw)
     const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
 
-    state.token.Balances.set(params.ownerID, params.totalSupply);
+    state.token.Balances.set(params.ownerAddr, params.totalSupply);
 
     state.save();
     return;
@@ -87,7 +87,7 @@ function GetBalanceOf(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
     const balance = state.getBalanceOf(params.userAddr)
-    const msg = `Balance: ${balance}`
+    const msg = `Balance: ${balance} ${state.token.Symbol}`
     return stringToArray(msg)
 }
 
@@ -120,7 +120,7 @@ function Transfer(rawParams: ParamsRawResult): Uint8Array {
     state.token.Balances.set(params.receiverAddr, newBalanceReceiver)
 
     state.save()
-    const msg = `from ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount}}`
+    const msg = `From ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount} ${state.token.Symbol}`
     return stringToArray(msg)
 }
 
@@ -183,7 +183,7 @@ function TransferFrom(rawParams: ParamsRawResult): Uint8Array {
     
     state.save()
 
-    const msg = `Transaction successfull`
+    const msg = `Transfer by ${spenderAddr} from ${params.ownerAddr} to ${params.receiverAddr} of ${params.transferAmount} ${state.token.Symbol} successfull`
     return stringToArray(msg)
 }
 
@@ -206,7 +206,7 @@ function Approval(rawParams: ParamsRawResult):  Uint8Array {
     state.token.Allowed.set(getAllowKey(callerAddr, params.spenderAddr), newAllowance)  
     state.save()
 
-    const msg = `approval ${getAllowKey(callerAddr, params.spenderAddr)} for ${newAllowance}`
+    const msg = `Approval ${getAllowKey(callerAddr, params.spenderAddr)} for ${newAllowance} ${state.token.Symbol}`
     return stringToArray(msg)
 }
 

@@ -4,13 +4,13 @@ import { genericAbort } from "@zondax/fvm-as-sdk/assembly/wrappers";
 import { fromRaw } from "./utils";
 
 export class InitParams {
-  static paramsLen: u8 = 4;
+  static paramsLen: u8 = 5;
 
   public name: string;
   public symbol: string;
   public decimal: u8;
   public totalSupply: u64;
-  public ownerID: string;
+  public ownerAddr: string;
 
   constructor(raw: Uint8Array) {
     const paramsArray = fromRaw(raw, InitParams.paramsLen);
@@ -19,14 +19,14 @@ export class InitParams {
     this.symbol = (paramsArray[1] as Str).valueOf();
     this.decimal = (paramsArray[2] as Integer).valueOf() as u8;
     this.totalSupply = (paramsArray[3] as Integer).valueOf() as u64;
-    this.ownerID = (paramsArray[4] as Str).valueOf();
+    this.ownerAddr = (paramsArray[4] as Str).valueOf();
 
     if (
       !this.name ||
       !this.symbol ||
       !this.decimal ||
       !this.totalSupply ||
-      !this.ownerID
+      !this.ownerAddr
     )
       genericAbort(USR_ILLEGAL_ARGUMENT, "Method invoked with invalid params");
   }
