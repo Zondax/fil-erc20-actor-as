@@ -4,6 +4,7 @@ import {
   Obj,
   Integer,
   Str,
+  Arr
 } from "@zondax/assemblyscript-cbor/assembly/types";
 import { Get } from "@zondax/fvm-as-sdk/assembly/helpers";
 import { USR_ILLEGAL_ARGUMENT } from "@zondax/fvm-as-sdk/assembly/env";
@@ -38,21 +39,16 @@ export class State extends BaseState {
   // This function should only indicate how to serialize the store into CBOR
   protected encode(): ArrayBuffer {
     const encoder = new CBOREncoder();
-    encoder.addObject(6);
+    encoder.addArray(6);
 
-    encoder.addKey("name");
     encoder.addString(this.token.Name);
 
-    encoder.addKey("symbol");
     encoder.addString(this.token.Symbol);
 
-    encoder.addKey("decimals");
     encoder.addUint8(this.token.Decimals);
 
-    encoder.addKey("total_supply");
     encoder.addUint64(this.token.TotalSupply);
 
-    encoder.addKey("balances");
     encoder.addObject(this.token.Balances.size);
     if (this.token.Balances.size > 0) {
       const values = this.token.Balances.values();
@@ -63,7 +59,6 @@ export class State extends BaseState {
       }
     }
 
-    encoder.addKey("allowed");
     encoder.addObject(this.token.Allowed.size);
     if (this.token.Allowed.size > 0) {
       const values = this.token.Allowed.values();
@@ -98,18 +93,18 @@ export class State extends BaseState {
     let allowed = new Map<string, u64>();
 
     // Here we cast as object as we know that is what we saved before
-    const state = rawState as Obj;
+    const state = (rawState as Arr).valueOf();
 
-    const name = (state.get("name") as Str).valueOf();
-    const symbol = (state.get("symbol") as Str).valueOf();
+    const name = (state[0] as Str).valueOf();
+    const symbol = (state[1] as Str).valueOf();
 
-    const decimals = (state.get("decimals") as Integer).valueOf() as u8;
+    const decimals = (state[2] as Integer).valueOf() as u8;
 
-    const totalSupply = (state.get("total_supply") as Integer).valueOf() as u64;
+    const totalSupply = (state[3] as Integer).valueOf() as u64;
 
     // Get balances
     let tmp: Map<String, Value> = new Map<String, Value>();
-    tmp = (state.get("balances") as Obj).valueOf();
+    tmp = (state[4] as Obj).valueOf();
 
     let keys = tmp.keys();
     for (let i = 0; i < keys.length; i++) {
@@ -123,7 +118,7 @@ export class State extends BaseState {
     }
 
     // Get allowed
-    tmp = (state.get("allowed") as Obj).valueOf();
+    tmp = (state[5] as Obj).valueOf();
 
     keys = tmp.keys();
     for (let i = 0; i < keys.length; i++) {

@@ -1,5 +1,5 @@
-/node_modules
-/build
+node_modules/
+build/
 .idea
 .DS_Store
 tests/local-vm/target
@@ -10,3 +10,4 @@ benchmarking/temp
 benchmarking/benchmark_results.csv
 .env
 *.wasm
+testing/target/
