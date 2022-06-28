@@ -6,7 +6,8 @@ import {
 } from "@zondax/fvm-as-sdk/assembly/env";
 import { genericAbort } from "@zondax/fvm-as-sdk/assembly/wrappers";
 
-export function stringToUint8Array(s: string): Uint8Array {
+// Helper method to convert string to Uint8Array
+export function stringToArray(s: string): Uint8Array {
   return Uint8Array.wrap(String.UTF8.encode(s));
 }
 
@@ -28,18 +29,4 @@ export function fromRaw(raw: Uint8Array, paramsLen: u8): Array<Value> {
   }
 
   return paramsArray;
-}
-
-export function checkBalance(balance: u64, addr: string): void {
-  if (balance < 0) {
-    genericAbort(
-      USR_ASSERTION_FAILED,
-      `Balance of sender ${addr} is ${balance}`
-    );
-  }
-  return;
-}
-
-export function getAllowKey(ownerAddr: string, spenderAddr: string): string {
-  return `${ownerAddr}${spenderAddr}`;
 }

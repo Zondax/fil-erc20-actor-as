@@ -4,14 +4,14 @@ import {
   Obj,
   Integer,
   Str,
-  Arr
+  Arr,
 } from "@zondax/assemblyscript-cbor/assembly/types";
 import { Get } from "@zondax/fvm-as-sdk/assembly/helpers";
 import { USR_ILLEGAL_ARGUMENT } from "@zondax/fvm-as-sdk/assembly/env";
 import { CBOREncoder } from "@zondax/assemblyscript-cbor/assembly";
 import { genericAbort, caller } from "@zondax/fvm-as-sdk/assembly/wrappers";
 import { Erc20Token } from "./models";
-import { getAllowKey } from "./utils";
+import { getAllowKey } from ".";
 
 export class State extends BaseState {
   token: Erc20Token;
@@ -92,7 +92,7 @@ export class State extends BaseState {
     let balances = new Map<string, u64>();
     let allowed = new Map<string, u64>();
 
-    // Here we cast as object as we know that is what we saved before
+    // Here we cast as array as we know that is what we saved before
     const state = (rawState as Arr).valueOf();
 
     const name = (state[0] as Str).valueOf();
@@ -135,6 +135,8 @@ export class State extends BaseState {
   }
 
   static load(): State {
+    // Using redundant data to init State, the `load` method on BaseState
+    // will return new State with data from what stored on the chain.
     return new State(
       "",
       "",

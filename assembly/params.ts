@@ -35,14 +35,14 @@ export class InitParams {
 export class BalancesOfParams {
   static paramsLen: u8 = 1;
 
-  public addr: string;
+  public userAddr: string;
 
   constructor(raw: Uint8Array) {
     const paramsArray = fromRaw(raw, BalancesOfParams.paramsLen);
 
-    this.addr = (paramsArray[0] as Str).valueOf();
+    this.userAddr = (paramsArray[0] as Str).valueOf();
 
-    if (!this.addr)
+    if (!this.userAddr)
       genericAbort(USR_ILLEGAL_ARGUMENT, "Method invoked with invalid params");
   }
 }
