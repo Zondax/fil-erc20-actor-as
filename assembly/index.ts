@@ -1,7 +1,7 @@
 // @filecoinfile
 import {AllowanceParams, ApprovalParams, BalancesOfParams, InitParams, TransferFromParams, TransferParams} from "./params";
 import {  State } from "./state";
-import { checkBalance, stringToUint8Array, getAllowKey } from "./utils";
+import { stringToArray } from "./utils";
 import { ParamsRawResult } from '@zondax/fvm-as-sdk/assembly/env/types'
 import {caller, genericAbort} from "@zondax/fvm-as-sdk/assembly/wrappers";
 import {USR_ASSERTION_FAILED} from "@zondax/fvm-as-sdk/assembly/env";
@@ -22,12 +22,17 @@ enum Methods {
 
 // @ts-ignore
 @constructor
-// params: [name, symbol, decimal, totalSupply]
+// Function executed on create actor
+// `name` - The name of the token
+// `symbol` - The symbol of the token
+// `decimal` - The decimal for the token to define divisibility
+// `totalSupply` - The total supply of the token
+// `ownderId` - The owner for all tokens to belong to on init
 function init(rawParams: ParamsRawResult): void {
     const params = new InitParams(rawParams.raw)
     const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
 
-    state.token.Balances.set(caller().toString(), params.totalSupply);
+    state.token.Balances.set(params.ownerAddr, params.totalSupply);
 
     state.save();
     return;
@@ -40,7 +45,7 @@ function GetName(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
     const msg = `Token name: ${state.token.Name}`
-    return stringToUint8Array(msg)
+    return stringToArray(msg)
 }
 
 // @ts-ignore
@@ -50,7 +55,7 @@ function GetSymbol(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
     const msg = `Token symbol: ${state.token.Symbol}`
-    return stringToUint8Array(msg)
+    return stringToArray(msg)
 }
 
 // @ts-ignore
@@ -60,7 +65,7 @@ function GetDecimal(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
     const msg = `Token decimal: ${state.token.Decimals}`
-    return stringToUint8Array(msg)
+    return stringToArray(msg)
 }
 
 // @ts-ignore
@@ -70,27 +75,27 @@ function GetTotalSupply(rawParams: ParamsRawResult): Uint8Array {
     const state = State.load()
 
     const msg = `Token total supply: ${state.token.TotalSupply}`
-    return stringToUint8Array(msg)
+    return stringToArray(msg)
 }
 
 // @ts-ignore
 @export_method(6)
 // `GetBalanceOf` return balance of wallet address
-// `args[0]` - the ID of user.
+// `userAddr` - the ID of user.
 function GetBalanceOf(rawParams: ParamsRawResult): Uint8Array {
     const params = new BalancesOfParams(rawParams.raw)
     const state = State.load()
 
-    const balance = state.getBalanceOf(params.addr)
-    const msg = `Balance: ${balance}`
-    return stringToUint8Array(msg)
+    const balance = state.getBalanceOf(params.userAddr)
+    const msg = `Balance: ${balance} ${state.token.Symbol}`
+    return stringToArray(msg)
 }
 
 // @ts-ignore
 @export_method(7)
-//Transfer token from current caller to a specified address.
-//`receiverAddr` - the ID of receiver.
-//`transferAmount` - the transfer amount.
+// Transfer token from current caller to a specified address.
+// `receiverAddr` - the ID of receiver.
+// `transferAmount` - the transfer amount.
 function Transfer(rawParams: ParamsRawResult): Uint8Array {
     const params = new TransferParams(rawParams.raw)
     const state = State.load()
@@ -115,30 +120,30 @@ function Transfer(rawParams: ParamsRawResult): Uint8Array {
     state.token.Balances.set(params.receiverAddr, newBalanceReceiver)
 
     state.save()
-    const msg = `from ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount}}`
-    return stringToUint8Array(msg)
+    const msg = `From ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount} ${state.token.Symbol}`
+    return stringToArray(msg)
 }
 
 // @ts-ignore
 @export_method(8)
-//Allowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
-//`ownerAddr` - the ID of owner.
-//`spenderAddr` - the ID of spender
+// Allowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
+// `ownerAddr` - the ID of owner.
+// `spenderAddr` - the ID of spender
 function Allowance(rawParams: ParamsRawResult): Uint8Array {
     const params = new AllowanceParams(rawParams.raw)
     const state = State.load()
 
     const allowance = state.getAllowance(params.ownerAddr, params.spenderAddr)
     const msg = `Allowance for ${params.spenderAddr} by ${params.ownerAddr}: ${allowance}`
-    return stringToUint8Array(msg)
+    return stringToArray(msg)
 }
 
 // @ts-ignore
 @export_method(9)
-//TransferFrom transfer tokens from token owner to receiver.
-//`ownerAddr` - the ID of token owner.
-//`receiverAddr` - the ID of receiver.
-//`transferAmount` - the transfer amount.
+// TransferFrom transfer tokens from token owner to receiver.
+// `ownerAddr` - the ID of token owner.
+// `receiverAddr` - the ID of receiver.
+// `transferAmount` - the transfer amount.
 function TransferFrom(rawParams: ParamsRawResult): Uint8Array {
     const params = new TransferFromParams(rawParams.raw)
     const state = State.load()
@@ -178,15 +183,15 @@ function TransferFrom(rawParams: ParamsRawResult): Uint8Array {
     
     state.save()
 
-    const msg = `Transaction successfull`
-    return stringToUint8Array(msg)
+    const msg = `Transfer by ${spenderAddr} from ${params.ownerAddr} to ${params.receiverAddr} of ${params.transferAmount} ${state.token.Symbol} successfull`
+    return stringToArray(msg)
 }
 
 // @ts-ignore
 @export_method(10)
-//Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
-//`spenderAddr` - the ID of approved user.
-//`newAllowance` - the maximum approved amount.
+// Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
+// `spenderAddr` - the ID of approved user.
+// `newAllowance` - the maximum approved amount.
 function Approval(rawParams: ParamsRawResult):  Uint8Array {
     const params = new ApprovalParams(rawParams.raw)
     const state = State.load()
@@ -201,6 +206,22 @@ function Approval(rawParams: ParamsRawResult):  Uint8Array {
     state.token.Allowed.set(getAllowKey(callerAddr, params.spenderAddr), newAllowance)  
     state.save()
 
-    const msg = `approval ${getAllowKey(callerAddr, params.spenderAddr)} for ${newAllowance}`
-    return stringToUint8Array(msg)
+    const msg = `Approval ${getAllowKey(callerAddr, params.spenderAddr)} for ${newAllowance} ${state.token.Symbol}`
+    return stringToArray(msg)
+}
+
+// Helper method to check balance
+export function checkBalance(balance: u64, addr: string): void {
+  if (balance < 0) {
+    genericAbort(
+      USR_ASSERTION_FAILED,
+      `Balance of sender ${addr} is ${balance}`
+    );
+  }
+  return;
+}
+
+// Helper method to get composite key to reference allowed map
+export function getAllowKey(ownerAddr: string, spenderAddr: string): string {
+  return `${ownerAddr}${spenderAddr}`;
 }

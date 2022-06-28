@@ -1,3 +1,4 @@
+// Basic ERC20 token
 export class Erc20Token {
   Name: string;
   Symbol: string;
