@@ -27,7 +27,7 @@ function init(rawParams: ParamsRawResult): void {
     const params = new InitParams(rawParams.raw)
     const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
 
-    state.token.Balances.set(caller().toString(), params.totalSupply);
+    state.token.Balances.set(params.ownerID, params.totalSupply);
 
     state.save();
     return;

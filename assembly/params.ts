@@ -10,6 +10,7 @@ export class InitParams {
   public symbol: string;
   public decimal: u8;
   public totalSupply: u64;
+  public ownerID: string;
 
   constructor(raw: Uint8Array) {
     const paramsArray = fromRaw(raw, InitParams.paramsLen);
@@ -18,8 +19,15 @@ export class InitParams {
     this.symbol = (paramsArray[1] as Str).valueOf();
     this.decimal = (paramsArray[2] as Integer).valueOf() as u8;
     this.totalSupply = (paramsArray[3] as Integer).valueOf() as u64;
+    this.ownerID = (paramsArray[4] as Str).valueOf();
 
-    if (!this.name || !this.symbol || !this.decimal || !this.totalSupply)
+    if (
+      !this.name ||
+      !this.symbol ||
+      !this.decimal ||
+      !this.totalSupply ||
+      !this.ownerID
+    )
       genericAbort(USR_ILLEGAL_ARGUMENT, "Method invoked with invalid params");
   }
 }
