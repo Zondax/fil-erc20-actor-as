@@ -10,4 +10,4 @@ benchmarking/temp
 benchmarking/benchmark_results.csv
 .env
 *.wasm
-testing/target/
+testing/fvm/target/
