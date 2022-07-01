@@ -7,6 +7,6 @@ build:
 	wizer build/release.wasm -f init -o fil-erc20-actor.wasm
 
 test:
-	cd testing && cargo r
+	cd testing/fvm && cargo r
 
 .PHONY: deps build test

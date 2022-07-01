@@ -1,9 +1,11 @@
 import {
-  FilecoinRPC,
   transactionSign,
   generateMnemonic,
   keyDerive,
 } from "@zondax/filecoin-signing-tools/js";
+
+import FilecoinRPC from "@zondax/filecoin-signing-tools/rpc";
+
 import fs from "fs";
 import log4js from "log4js";
 import path from "path";
@@ -51,6 +53,8 @@ test("Install actor", async () => {
   const params = cbor.encode([new Uint8Array(code.buffer)]);
   logger.trace("Params encoded");
 
+  console.log(FilecoinRPC)
+
   const filRPC = new FilecoinRPC({ url: URL, token: TOKEN });
   const nonce = (await filRPC.getNonce(keys.address)).result;
   logger.trace(`Nonce: ${nonce}`);
@@ -70,14 +74,20 @@ test("Install actor", async () => {
   tx = await getFee(filRPC, tx);
   if (!tx) return;
 
-  console.log(tx);
   const signedTx = transactionSign(tx, keys.private_base64);
 
-  const sentTx = await filRPC.sendSignedMessage({
-    Message: tx,
-    Signature: signedTx.Signature,
-  });
-  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+  let sentTx  
+  try {
+    sentTx = await filRPC.sendSignedMessage({
+      Message: tx,
+      Signature: signedTx.Signature,
+    });
+    logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+  } catch (err) {
+    console.log(err.response)
+    throw new Error("failed")
+  }
+
 
   expect(sentTx.result).toBeDefined();
   expect(sentTx.result.Receipt).toBeDefined();
