@@ -709,10 +709,10 @@
   resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.5.1.tgz#9c24068c510b665f32bd107af9f748680d8d419f"
   integrity sha512-k0iuZCMcEOk0oildpPTHL1ioudryO8rr6FDTu24it63QLc8jwKIvCIoOkwCYG8ChZRbJNiU3N5C4Pq1aaQcpFA==
 
-"@zondax/filecoin-signing-tools@^1.0.1":
-  version "1.0.2"
-  resolved "https://verdaccio.zondax.net/@zondax%2ffilecoin-signing-tools/-/filecoin-signing-tools-1.0.2.tgz#42abfe05526744c2d25168b3791473bf596d01dd"
-  integrity sha512-cBf6avrTumv1w+ejZbb+oHPn0AusuJrTuhuJY4QnIn/sZUiLboxK2vG4jLx6U9vQKWcWJwvD96M3S1edpiDKQQ==
+"@zondax/filecoin-signing-tools@1.0.3":
+  version "1.0.3"
+  resolved "https://verdaccio.zondax.net/@zondax%2ffilecoin-signing-tools/-/filecoin-signing-tools-1.0.3.tgz#05ad5d933f9ed78d33a45d98845a60cc65d323e5"
+  integrity sha512-KC5fTH1VgfYglGKiTd0BNrKYWAnZgMoiVKZ4mdwV2Rh5q9P5Br+tzve+91O+ZQo8tQCK3IWBSssnlcjJvxSWhA==
   dependencies:
     "@ipld/dag-cbor" "^7.0.0"
     axios "^0.24.0"
