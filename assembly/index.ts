@@ -1,8 +1,5 @@
-// @filecoinfile
-import {AllowanceParams, ApprovalParams, BalancesOfParams, InitParams, TransferFromParams, TransferParams} from "./params";
+// @chainfile-index
 import {  State } from "./state";
-import { stringToArray } from "./utils";
-import { ParamsRawResult } from '@zondax/fvm-as-sdk/assembly/env/types'
 import {caller, genericAbort} from "@zondax/fvm-as-sdk/assembly/wrappers";
 import {USR_ASSERTION_FAILED} from "@zondax/fvm-as-sdk/assembly/env";
 
@@ -28,187 +25,192 @@ enum Methods {
 // `decimal` - The decimal for the token to define divisibility
 // `totalSupply` - The total supply of the token
 // `ownderId` - The owner for all tokens to belong to on init
-function init(rawParams: ParamsRawResult): void {
-    const params = new InitParams(rawParams.raw)
-    const state = new State(params.name, params.symbol, params.decimal, params.totalSupply, new Map<string, u64>(), new Map<string, u64>());
+function init(name: string, symbol: string, decimal: u8, totalSupply: u64, ownerAddr: string): void {
+    const state = new State(name, symbol, decimal, totalSupply, new Map<string, u64>(), new Map<string, u64>());
 
-    state.token.Balances.set(params.ownerAddr, params.totalSupply);
+    state.Balances.set(ownerAddr, totalSupply);
 
+    // @ts-ignore
     state.save();
     return;
 }
 
-// @ts-ignore
-@export_method(2)
-// `GetName` return token Name of erc20 token
-function GetName(rawParams: ParamsRawResult): Uint8Array {
-    const state = State.load()
+// // @ts-ignore
+// @export_method(2)
+// // `GetName` return Name of erc20
+// function GetName(): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const msg = `Token name: ${state.token.Name}`
-    return stringToArray(msg)
-}
+//     const msg = `Token name: ${state.Name}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(3)
-// `GetSymbol` return token Name of erc20 token
-function GetSymbol(rawParams: ParamsRawResult): Uint8Array {
-    const state = State.load()
+// // @ts-ignore
+// @export_method(3)
+// // `GetSymbol` return Name of erc20
+// function GetSymbol(): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const msg = `Token symbol: ${state.token.Symbol}`
-    return stringToArray(msg)
-}
+//     const msg = `Token symbol: ${state.Symbol}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(4)
-// `GetDecimal` return token decimal of erc20 token
-function GetDecimal(rawParams: ParamsRawResult): Uint8Array {
-    const state = State.load()
+// // @ts-ignore
+// @export_method(4)
+// // `GetDecimal` return decimal of erc20
+// function GetDecimal(): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const msg = `Token decimal: ${state.token.Decimals}`
-    return stringToArray(msg)
-}
+//     const msg = `Token decimal: ${state.Decimals}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(5)
-// `GetTotalSupply` return token TotalSupply of erc20 token
-function GetTotalSupply(rawParams: ParamsRawResult): Uint8Array {
-    const state = State.load()
+// // @ts-ignore
+// @export_method(5)
+// // `GetTotalSupply` return TotalSupply of erc20
+// function GetTotalSupply(): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const msg = `Token total supply: ${state.token.TotalSupply} ${state.token.Symbol}`
-    return stringToArray(msg)
-}
+//     const msg = `Token total supply: ${state.TotalSupply} ${state.Symbol}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(6)
-// `GetBalanceOf` return balance of wallet address
-// `userAddr` - the ID of user.
-function GetBalanceOf(rawParams: ParamsRawResult): Uint8Array {
-    const params = new BalancesOfParams(rawParams.raw)
-    const state = State.load()
+// // @ts-ignore
+// @export_method(6)
+// // `GetBalanceOf` return balance of wallet address
+// // `userAddr` - the ID of user.
+// function GetBalanceOf(userAddr: string): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const balance = state.getBalanceOf(params.userAddr)
-    const msg = `Balance: ${balance} ${state.token.Symbol}`
-    return stringToArray(msg)
-}
+//     const balance = state.getBalanceOf(userAddr)
+//     const msg = `Balance: ${balance} ${state.Symbol}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(7)
-// Transfer token from current caller to a specified address.
-// `receiverAddr` - the ID of receiver.
-// `transferAmount` - the transfer amount.
-function Transfer(rawParams: ParamsRawResult): Uint8Array {
-    const params = new TransferParams(rawParams.raw)
-    const state = State.load()
-    const senderAddr = caller().toString()
+// // @ts-ignore
+// @export_method(7)
+// // Transfer from current caller to a specified address.
+// // `receiverAddr` - the ID of receiver.
+// // `transferAmount` - the transfer amount.
+// function Transfer(receiverAddr: string, transferAmount: u64): string {
+//     // @ts-ignore
+//     const state = State.load() as State
+//     const senderAddr = caller().toString()
 
-    if(params.transferAmount <= 0) {
-        genericAbort(USR_ASSERTION_FAILED, "Transfer amount should be greater than zero")
-    }
+//     if (transferAmount <= 0) {
+//         genericAbort(USR_ASSERTION_FAILED, "Transfer amount should be greater than zero")
+//     }
 
-    const balanceOfSender = state.getBalanceOf(senderAddr)
-    checkBalance(balanceOfSender, senderAddr)
+//     const balanceOfSender = state.getBalanceOf(senderAddr)
+//     checkBalance(balanceOfSender, senderAddr)
 
-    if(balanceOfSender < params.transferAmount) {
-        genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than or equal to balance of sender (${senderAddr})`)
-    }
+//     if(balanceOfSender < transferAmount) {
+//         genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than or equal to balance of sender (${senderAddr})`)
+//     }
 
-    const balanceOfReciever = state.getBalanceOf(params.receiverAddr)
-    const newBalanceSender = balanceOfSender - params.transferAmount
-    const newBalanceReceiver = balanceOfReciever + params.transferAmount
+//     const balanceOfReciever = state.getBalanceOf(receiverAddr)
+//     const newBalanceSender = balanceOfSender - transferAmount
+//     const newBalanceReceiver = balanceOfReciever + transferAmount
 
-    state.token.Balances.set(senderAddr, newBalanceSender)
-    state.token.Balances.set(params.receiverAddr, newBalanceReceiver)
+//     state.Balances.set(senderAddr, newBalanceSender)
+//     state.Balances.set(receiverAddr, newBalanceReceiver)
 
-    state.save()
-    const msg = `From ${senderAddr} to ${params.receiverAddr} amount ${params.transferAmount} ${state.token.Symbol}`
-    return stringToArray(msg)
-}
+//     state.save()
+//     const msg = `From ${senderAddr} to $ receiverAddr} amount $ transferAmount} ${state.Symbol}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(8)
-// Allowance checks the amount of tokens that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
-// `ownerAddr` - the ID of owner.
-// `spenderAddr` - the ID of spender
-function Allowance(rawParams: ParamsRawResult): Uint8Array {
-    const params = new AllowanceParams(rawParams.raw)
-    const state = State.load()
+// // @ts-ignore
+// @export_method(8)
+// // Allowance checks the amount ofs that an owner Allowed a spender to transfer in behalf of the owner to another receiver.
+// // `ownerAddr` - the ID of owner.
+// // `spenderAddr` - the ID of spender
+// function Allowance(ownerAddr: string, spenderAddr: string): string {
+//     // @ts-ignore
+//     const state = State.load() as State
 
-    const allowance = state.getAllowance(params.ownerAddr, params.spenderAddr)
-    const msg = `Allowance for ${params.spenderAddr} by ${params.ownerAddr}: ${allowance}`
-    return stringToArray(msg)
-}
+//     const allowance = state.getAllowance(ownerAddr, spenderAddr)
+//     const msg = `Allowance for $ spenderAddr} by $ ownerAddr}: ${allowance}`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(9)
-// TransferFrom transfer tokens from token owner to receiver.
-// `ownerAddr` - the ID of token owner.
-// `receiverAddr` - the ID of receiver.
-// `transferAmount` - the transfer amount.
-function TransferFrom(rawParams: ParamsRawResult): Uint8Array {
-    const params = new TransferFromParams(rawParams.raw)
-    const state = State.load()
-    const spenderAddr = caller().toString()
+// // @ts-ignore
+// @export_method(9)
+// // TransferFrom transfers from owner to receiver.
+// // `ownerAddr` - the ID of owner.
+// // `receiverAddr` - the ID of receiver.
+// // `transferAmount` - the transfer amount.
+// function TransferFrom(ownerAddr: string, receiverAddr: string, transferAmount: u64): string {
+//     // @ts-ignore
+//     const state = State.load() as State
+//     const spenderAddr = caller().toString()
 
-    if (params.transferAmount <= 0) {
-        genericAbort(USR_ASSERTION_FAILED, "Transfer amount should be greater than zero")
-    }
+//     if(transferAmount <= 0) {
+//         genericAbort(USR_ASSERTION_FAILED, "Transfer amount should be greater than zero")
+//     }
 
-    const balanceOfTokenOwner= state.getBalanceOf(params.ownerAddr)
-    const balanceOfReceiver= state.getBalanceOf(params.receiverAddr)
+//     const balanceOfTokenOwner= state.getBalanceOf(ownerAddr)
+//     const balanceOfReceiver= state.getBalanceOf(receiverAddr)
     
-    const approvedAmount= state.getAllowance(params.ownerAddr, spenderAddr)
+//     const approvedAmount= state.getAllowance(ownerAddr, spenderAddr)
     
-    checkBalance(balanceOfTokenOwner, params.ownerAddr)
-    checkBalance(balanceOfReceiver, params.receiverAddr)
+//     checkBalance(balanceOfTokenOwner, ownerAddr)
+//     checkBalance(balanceOfReceiver, receiverAddr)
     
-    if (approvedAmount <= 0) {
-        genericAbort(USR_ASSERTION_FAILED, "Approved amount should be greater than zero")
-    }
+//     if (approvedAmount <= 0) {
+//         genericAbort(USR_ASSERTION_FAILED, "Approved amount should be greater than zero")
+//     }
     
-    if(params.transferAmount > balanceOfTokenOwner) {
-        genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than balance of token owner (${params.ownerAddr})`)
-    }
+//     if (transferAmount > balanceOfTokenOwner) {
+//         genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than balance of owner ($ ownerAddr})`)
+//     }
     
-    if(params.transferAmount > approvedAmount) {
-        genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than approved spending amount of ${spenderAddr}`)
-    }
+//     if (transferAmount > approvedAmount) {
+//         genericAbort(USR_ASSERTION_FAILED, `transfer amount should be less than approved spending amount of ${spenderAddr}`)
+//     }
     
-    const newOwnerBalance = balanceOfTokenOwner - params.transferAmount
-    const newReceiverBalance = balanceOfReceiver + params.transferAmount
-    const newSpenderAllowance = approvedAmount - params.transferAmount
+//     const newOwnerBalance = balanceOfTokenOwner - transferAmount
+//     const newReceiverBalance = balanceOfReceiver + transferAmount
+//     const newSpenderAllowance = approvedAmount - transferAmount
     
-    state.token.Balances.set(params.ownerAddr, newOwnerBalance)
-    state.token.Balances.set(params.receiverAddr, newReceiverBalance)
-    state.token.Allowed.set(getAllowKey(params.ownerAddr, spenderAddr), newSpenderAllowance)
+//     state.Balances.set(ownerAddr, newOwnerBalance)
+//     state.Balances.set(receiverAddr, newReceiverBalance)
+//     state.Allowed.set(getAllowKey(ownerAddr, spenderAddr), newSpenderAllowance)
     
-    state.save()
+//     state.save()
 
-    const msg = `Transfer by ${spenderAddr} from ${params.ownerAddr} to ${params.receiverAddr} of ${params.transferAmount} ${state.token.Symbol} successfull`
-    return stringToArray(msg)
-}
+//     const msg = `Transfer by ${spenderAddr} from $ ownerAddr} to $ receiverAddr} of $ transferAmount} ${state.Symbol} successfull`
+//     return msg
+// }
 
-// @ts-ignore
-@export_method(10)
-// Approval approves the passed-in identity to spend/burn a maximum amount of tokens on behalf of the function caller.
-// `spenderAddr` - the ID of approved user.
-// `newAllowance` - the maximum approved amount.
-function Approval(rawParams: ParamsRawResult):  Uint8Array {
-    const params = new ApprovalParams(rawParams.raw)
-    const state = State.load()
-    if(params.newAllowance <= 0) {
-        genericAbort(USR_ASSERTION_FAILED, `allow value must bigger than zero`)
-    }
-    const callerAddr = caller().toString()
+// // @ts-ignore
+// @export_method(10)
+// // Approval approves the passed-in identity to spend/burn a maximum amount ofs on behalf of the function caller.
+// // `spenderAddr` - the ID of approved user.
+// // `newAllowance` - the maximum approved amount.
+// function Approval(spenderAddr: string, newAllowance: u64): string {
+//     // @ts-ignore
+//     const state = State.load() as State
+//     if (newAllowance <= 0) {
+//         genericAbort(USR_ASSERTION_FAILED, `allow value must bigger than zero`)
+//     }
+//     const callerAddr = caller().toString()
 
-    const allowance= state.getAllowance(callerAddr, params.spenderAddr)
+//     const allowance= state.getAllowance(callerAddr, spenderAddr)
 
-    const newAllowance = allowance + params.newAllowance
-    state.token.Allowed.set(getAllowKey(callerAddr, params.spenderAddr), newAllowance)  
-    state.save()
+//     newAllowance = allowance + newAllowance
+//     state.Allowed.set(getAllowKey(callerAddr, spenderAddr), newAllowance)  
 
-    const msg = `Approval ${getAllowKey(callerAddr, params.spenderAddr)} for ${newAllowance} ${state.token.Symbol}`
-    return stringToArray(msg)
-}
+//     state.save()
+
+//     const msg = `Approval ${getAllowKey(callerAddr, spenderAddr)} for ${newAllowance} ${state.Symbol}`
+//     return msg
+// }
 
 // Helper method to check balance
 export function checkBalance(balance: u64, addr: string): void {
