@@ -11,3 +11,5 @@ benchmarking/benchmark_results.csv
 .env
 *.wasm
 testing/fvm/target/
+assembly/state.ts.parsed.out
+assembly/state.ts.source.out
