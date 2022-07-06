@@ -347,7 +347,7 @@ test("Invoke method 9 (TransferFrom)", async () => {
   postInvoke(
     sentTx,
     new RegExp(
-      `Transfer by ${ADDRESS_ID_1} from ${ADDRESS_ID_2} to 200 of 500 ZDX successfull`
+      `Transfer by ${ADDRESS_ID_2} from ${ADDRESS_ID_1} to 200 of 500 ZDX successfull`
     )
   );
 });
