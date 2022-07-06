@@ -1,4 +1,3 @@
-// @chainfile-state
 import { BaseState } from "@zondax/fvm-as-sdk/assembly/utils/state";
 import { getAllowKey } from ".";
 
@@ -16,25 +15,6 @@ export class State extends BaseState {
 
   Balances: Map<string, u64>;
   Allowed: Map<string, u64>; //owner-spender
-
-  constructor(
-    name: string,
-    symbol: string,
-    decimals: u8,
-    totalSupply: u64,
-    balances: Map<string, u64>,
-    allowed: Map<string, u64>
-  ) {
-    super();
-
-    this.Name = name;
-    this.Symbol = symbol;
-    this.Decimals = decimals;
-    this.TotalSupply = totalSupply;
-
-    this.Balances = balances;
-    this.Allowed = allowed;
-  }
 
   getBalanceOf(addr: string): u64 {
     const has = this.Balances.has(addr);
