@@ -121,7 +121,7 @@ function Transfer(receiverAddr: string, transferAmount: u64): string {
     state.Balances.set(receiverAddr, newBalanceReceiver)
 
     state.save()
-    const msg = `From ${senderAddr} to $ receiverAddr} amount $ transferAmount} ${state.Symbol}`
+    const msg = `From ${senderAddr} to ${receiverAddr} amount ${transferAmount} ${state.Symbol}`
     return msg
 }
 
@@ -135,7 +135,7 @@ function Allowance(ownerAddr: string, spenderAddr: string): string {
     const state = State.load() as State
 
     const allowance = state.getAllowance(ownerAddr, spenderAddr)
-    const msg = `Allowance for $ spenderAddr} by $ ownerAddr}: ${allowance}`
+    const msg = `Allowance for ${spenderAddr} by ${ownerAddr}: ${allowance}`
     return msg
 }
 
@@ -184,7 +184,7 @@ function TransferFrom(ownerAddr: string, receiverAddr: string, transferAmount: u
     
     state.save()
 
-    const msg = `Transfer by ${spenderAddr} from $ ownerAddr} to $ receiverAddr} of $ transferAmount} ${state.Symbol} successfull`
+    const msg = `Transfer by ${spenderAddr} from ${ownerAddr} to ${receiverAddr} of $ transferAmount} ${state.Symbol} successfull`
     return msg
 }
 

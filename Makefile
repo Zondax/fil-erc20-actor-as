@@ -9,4 +9,7 @@ build:
 test:
 	cd testing/fvm && cargo r
 
+test-rpc: build
+	yarn tests:rpc
+
 .PHONY: deps build test
