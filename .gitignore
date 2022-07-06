@@ -13,3 +13,5 @@ benchmarking/benchmark_results.csv
 testing/fvm/target/
 assembly/state.ts.parsed.out
 assembly/state.ts.source.out
+assembly/index.ts.parsed.out
+assembly/index.ts.source.out
