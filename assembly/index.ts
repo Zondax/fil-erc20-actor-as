@@ -184,7 +184,7 @@ function TransferFrom(ownerAddr: string, receiverAddr: string, transferAmount: u
     
     state.save()
 
-    const msg = `Transfer by ${spenderAddr} from ${ownerAddr} to ${receiverAddr} of $ transferAmount} ${state.Symbol} successfull`
+    const msg = `Transfer by ${spenderAddr} from ${ownerAddr} to ${receiverAddr} of ${transferAmount} ${state.Symbol} successfull`
     return msg
 }
 
