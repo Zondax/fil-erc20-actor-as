@@ -699,20 +699,15 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@zondax/assemblyscript-cbor@^0.3.1":
-  version "0.3.1"
-  resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.3.1.tgz#ef0f2382f667e758df8ea2604e87894e33f388fb"
-  integrity sha512-zj1d70d8eKZG/drSPDaQC982zCWSM2I0oLEWYK1LQ5g6bnKPdI33cniqnuzomtkGPRvKqGPx+kClfhDMkXSYDQ==
-
-"@zondax/assemblyscript-cbor@^0.5.1":
+"@zondax/assemblyscript-cbor@^0.5.0", "@zondax/assemblyscript-cbor@^0.5.1":
   version "0.5.1"
   resolved "https://verdaccio.zondax.net/@zondax%2fassemblyscript-cbor/-/assemblyscript-cbor-0.5.1.tgz#9c24068c510b665f32bd107af9f748680d8d419f"
   integrity sha512-k0iuZCMcEOk0oildpPTHL1ioudryO8rr6FDTu24it63QLc8jwKIvCIoOkwCYG8ChZRbJNiU3N5C4Pq1aaQcpFA==
 
-"@zondax/filecoin-signing-tools@^1.0.1":
-  version "1.0.2"
-  resolved "https://verdaccio.zondax.net/@zondax%2ffilecoin-signing-tools/-/filecoin-signing-tools-1.0.2.tgz#42abfe05526744c2d25168b3791473bf596d01dd"
-  integrity sha512-cBf6avrTumv1w+ejZbb+oHPn0AusuJrTuhuJY4QnIn/sZUiLboxK2vG4jLx6U9vQKWcWJwvD96M3S1edpiDKQQ==
+"@zondax/filecoin-signing-tools@1.0.4":
+  version "1.0.4"
+  resolved "https://verdaccio.zondax.net/@zondax%2ffilecoin-signing-tools/-/filecoin-signing-tools-1.0.4.tgz#6f3fb2ad5502951b3e147585d40a8dc29ff2cb77"
+  integrity sha512-t4F3H+t87xw6uyg2R0OIdisg8pUf9dx5Ka/RM0GEGMrGSSFYUpxbgmrlqvw6zfxCDdHj86hBxwis/JnxJA2lXQ==
   dependencies:
     "@ipld/dag-cbor" "^7.0.0"
     axios "^0.24.0"
@@ -732,12 +727,12 @@
   dependencies:
     assemblyscript "^0.20.11"
 
-"@zondax/fvm-as-sdk@^0.4.1":
-  version "0.4.2"
-  resolved "https://verdaccio.zondax.net/@zondax%2ffvm-as-sdk/-/fvm-as-sdk-0.4.2.tgz#d932f5b53593be808102f70f01f1884fb7dc36e4"
-  integrity sha512-UwYthy1xmsKB/35vCvn3AhBcP0oPOSoHnGch7EShJqSVKqey+RWqezAqDpoi+oCQzeCMrv2Ew4ik6SrC3MOiJQ==
+"@zondax/fvm-as-sdk@^0.5.1":
+  version "0.5.1"
+  resolved "https://verdaccio.zondax.net/@zondax%2ffvm-as-sdk/-/fvm-as-sdk-0.5.1.tgz#33d8905b4707bd8f658a237606717a3845aabcd8"
+  integrity sha512-XLvN0awsSTbaIaLme4V3xfwu5P0gnwI4ezPVuP3ZXyNjTrscXdpxRYV0q1wZy8O5mAiqEM0KYwDsQlcA3WXFog==
   dependencies:
-    "@zondax/assemblyscript-cbor" "^0.3.1"
+    "@zondax/assemblyscript-cbor" "^0.5.0"
     as-bigint "^0.5.3"
 
 acorn-walk@^8.1.1:

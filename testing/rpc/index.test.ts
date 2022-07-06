@@ -7,42 +7,48 @@ import {
 import FilecoinRPC from "@zondax/filecoin-signing-tools/rpc";
 
 import fs from "fs";
-import log4js from "log4js";
 import path from "path";
 import * as cbor from "@ipld/dag-cbor";
+import { getFee, logger } from "./utils";
+import { CID } from "multiformats/cid";
 
 jest.setTimeout(300 * 1000);
 
 const URL = process.env["NODE_URL"];
 const TOKEN = process.env["NODE_TOKEN"];
 const SEED = process.env["SEED"];
+const SEED2 = process.env["SEED2"];
 
 const WASM_ACTOR = "../../fil-erc20-actor.wasm";
 const INIT_ACTOR_ADDRESS = "f01";
 const INIT_ACTOR_INSTALL_METHOD = 3;
 const INIT_ACTOR_CREATE_METHOD = 2;
+const ADDRESS_ID_1 = "1006";
+const ADDRESS_ID_2 = "1001";
 
-const logger = log4js.getLogger();
-logger.level = process.env["LOG_LEVEL"] || "TRACE";
-
-let seed;
-let keys;
-let actorCid;
-let instanceAddress;
+let Keys;
+let Keys2;
+let ActorCid;
+let InstanceAddress;
 
 beforeAll(() => {
-  seed = SEED || generateMnemonic();
-  logger.trace(`Seed: [${seed}]`);
+  logger.trace(`Seed: [${SEED}]`);
 
-  keys = keyDerive(seed, "m/44'/461'/0/0/1", "");
-  logger.trace(`Address: ${keys.address}`);
+  Keys = keyDerive(SEED, "m/44'/461'/0/0/1", "");
+  Keys2 = keyDerive(SEED2, "m/44'/461'/0/0/0", "");
+  logger.trace(`Address: ${Keys.address}`);
 
   logger.trace(
     `Key file to add address on lotus devnet node: ${Buffer.from(
-      `{"Type":"secp256k1","PrivateKey":"${keys.private_base64}"}`
+      `{"Type":"secp256k1","PrivateKey":"${Keys.private_base64}"}`
     ).toString("hex")}`
   );
 });
+
+////////////////////
+////////////////////
+////////////////////
+////////////////////
 
 test("Install actor", async () => {
   logger.info(`Installing actor [${path.join(__dirname, WASM_ACTOR)}]`);
@@ -53,14 +59,12 @@ test("Install actor", async () => {
   const params = cbor.encode([new Uint8Array(code.buffer)]);
   logger.trace("Params encoded");
 
-  console.log(FilecoinRPC)
-
   const filRPC = new FilecoinRPC({ url: URL, token: TOKEN });
-  const nonce = (await filRPC.getNonce(keys.address)).result;
+  const nonce = (await filRPC.getNonce(Keys.address)).result;
   logger.trace(`Nonce: ${nonce}`);
 
   let tx = {
-    From: keys.address,
+    From: Keys.address,
     To: INIT_ACTOR_ADDRESS,
     Value: "0",
     Method: INIT_ACTOR_INSTALL_METHOD,
@@ -74,9 +78,9 @@ test("Install actor", async () => {
   tx = await getFee(filRPC, tx);
   if (!tx) return;
 
-  const signedTx = transactionSign(tx, keys.private_base64);
+  const signedTx = transactionSign(tx, Keys.private_base64);
 
-  let sentTx  
+  let sentTx;
   try {
     sentTx = await filRPC.sendSignedMessage({
       Message: tx,
@@ -84,58 +88,320 @@ test("Install actor", async () => {
     });
     logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
   } catch (err) {
-    console.log(err.response)
-    throw new Error("failed")
+    console.log(err.response);
+    throw new Error("failed");
   }
 
+  expect(sentTx.result).toBeDefined();
+  expect(sentTx.result.Receipt).toBeDefined();
+  expect(sentTx.result.Receipt.ExitCode).toBe(0);
+
+  const respBuffer = Buffer.from(sentTx.result.Receipt.Return, "base64");
+
+  let arrayBuffer = new ArrayBuffer(respBuffer.length);
+  let typedArray = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < respBuffer.length; ++i) {
+    typedArray[i] = respBuffer[i];
+  }
+
+  const [cid, isInstalled] = cbor.decode<[CID, boolean]>(typedArray);
+
+  expect(cid).toBeDefined();
+  expect(isInstalled).toBeDefined();
+
+  logger.info(`CID: ${cid.toString()}`);
+  logger.info(`Is installed: ${isInstalled}`);
+  ActorCid = cid;
+});
+
+test("Create Actor", async () => {
+  expect(ActorCid).toBeDefined();
+
+  logger.info(`Instantiating Actor [${ActorCid.toString()}]`);
+
+  const params = cbor.encode([
+    ActorCid,
+    Buffer.from(cbor.encode(["ZondaxCoin", "ZDX", 18, 1000000, ADDRESS_ID_1])),
+  ]);
+  logger.trace("Params encoded");
+
+  const filRPC = new FilecoinRPC({ url: URL, token: TOKEN });
+  const nonce = (await filRPC.getNonce(Keys.address)).result;
+  logger.trace(`Nonce: ${nonce}`);
+
+  let tx = {
+    From: Keys.address,
+    To: INIT_ACTOR_ADDRESS,
+    Value: "0",
+    Method: INIT_ACTOR_CREATE_METHOD,
+    Params: Buffer.from(params).toString("base64"),
+    Nonce: nonce,
+    GasFeeCap: "0",
+    GasPremium: "0",
+    GasLimit: 0,
+  };
+
+  tx = await getFee(filRPC, tx);
+  if (!tx) return;
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
 
   expect(sentTx.result).toBeDefined();
   expect(sentTx.result.Receipt).toBeDefined();
   expect(sentTx.result.Receipt.ExitCode).toBe(0);
 
   if (sentTx.result.Receipt.ExitCode == 0) {
-    const respBuffer = Buffer.from(sentTx.result.Receipt.Return, "base64");
+    let idAddr, robustAddr;
+    if (sentTx.result.ReturnDec) {
+      idAddr = sentTx.result.ReturnDec.IDAddress;
+      robustAddr = sentTx.result.ReturnDec.RobustAddress;
+    } else {
+      const respBuffer = Buffer.from(sentTx.result.Receipt.Return, "base64");
 
-    let arrayBuffer = new ArrayBuffer(respBuffer.length);
-    let typedArray = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < respBuffer.length; ++i) {
-      typedArray[i] = respBuffer[i];
+      let arrayBuffer = new ArrayBuffer(respBuffer.length);
+      let typedArray = new Uint8Array(arrayBuffer);
+      for (let i = 0; i < respBuffer.length; ++i) {
+        typedArray[i] = respBuffer[i];
+      }
+
+      [idAddr, robustAddr] = cbor.decode(typedArray);
     }
 
-    const [cid, isInstalled] = cbor.decode(typedArray);
+    expect(idAddr).toBeDefined();
+    expect(robustAddr).toBeDefined();
 
-    expect(cid).toBeDefined();
-    expect(isInstalled).toBeDefined();
+    logger.info(`ID Address: ${idAddr.toString()}`);
+    logger.info(`Robust address: ${robustAddr.toString()}`);
 
-    logger.info(`CID: ${cid.toString()}`);
-    logger.info(`Is installed: ${isInstalled}`);
-    actorCid = cid;
+    InstanceAddress = idAddr.toString();
   }
 });
 
-async function getFee(filRPC, tx) {
-  try {
-    const fees = await filRPC.getGasEstimation({ ...tx });
-    logger.trace(`Fees: ${JSON.stringify(fees)}`);
+////////////////////
+////////////////////
+////////////////////
+////////////////////
 
-    expect(fees.error).not.toBeDefined();
-    if (fees.error) return;
+test("Invoke method 2 (GetName)", async () => {
+  expect(InstanceAddress).toBeDefined();
 
-    expect(fees.result).toBeDefined();
-    expect(fees.result.GasFeeCap).toBeDefined();
-    expect(fees.result.GasPremium).toBeDefined();
-    expect(fees.result.GasLimit).toBeDefined();
+  logger.info(
+    `Invoking method 2 from instance [${InstanceAddress.toString()}]`
+  );
 
-    const { GasFeeCap, GasPremium, GasLimit } = fees.result;
-    tx = {
-      ...tx,
-      GasFeeCap,
-      GasPremium,
-      GasLimit,
-    };
+  const params = cbor.encode([]);
+  logger.trace("Params encoded");
 
-    return tx;
-  } catch (err) {
-    logger.error(`Error fetching fees: ${JSON.stringify(err)}`);
-  }
-}
+  const { tx, filRPC } = await preInvoke(2, []);
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(sentTx, /Token name: ZondaxCoin/);
+});
+
+test("Invoke method 3 (GetSymbol)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(3, []);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(sentTx, /Token symbol: ZDX/);
+});
+
+test("Invoke method 4 (GetDecimal)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(4, []);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(sentTx, /Token decimal: 18/);
+});
+
+test("Invoke method 5 (GetTotalSupply)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(5, []);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(sentTx, /Token total supply: 1000000/);
+});
+
+test("Invoke method 6 (GetBalanceOf)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(6, ["1006"]);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(sentTx, /Balance: /);
+});
+
+test("Invoke method 7 (Transfer)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(7, [ADDRESS_ID_2, 500]);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(
+    sentTx,
+    new RegExp(`From ${ADDRESS_ID_1} to ${ADDRESS_ID_2} amount 500`)
+  );
+});
+
+test("Invoke method 10 (Approval)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(10, [ADDRESS_ID_2, 1000]);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(
+    sentTx,
+    new RegExp(`Approval ${ADDRESS_ID_1}${ADDRESS_ID_2} for 1000 ZDX`)
+  );
+});
+
+test("Invoke method 8 (Allowance)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(8, [ADDRESS_ID_1, ADDRESS_ID_2]);
+
+  const signedTx = transactionSign(tx, Keys.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(
+    sentTx,
+    new RegExp(`Allowance for ${ADDRESS_ID_2} by ${ADDRESS_ID_1}: 1000`)
+  );
+});
+
+test("Invoke method 9 (TransferFrom)", async () => {
+  expect(InstanceAddress).toBeDefined();
+
+  const { tx, filRPC } = await preInvoke(9, [ADDRESS_ID_1, "200", 500], true);
+
+  const signedTx = transactionSign(tx, Keys2.private_base64);
+
+  const sentTx = await filRPC.sendSignedMessage({
+    Message: tx,
+    Signature: signedTx.Signature,
+  });
+  logger.trace(`Sent tx response: ${JSON.stringify(sentTx)}`);
+
+  postInvoke(
+    sentTx,
+    new RegExp(
+      `Transfer by ${ADDRESS_ID_1} from ${ADDRESS_ID_2} to 200 of 500 ZDX successfull`
+    )
+  );
+});
+
+////////////////////
+////////////////////
+////////////////////
+////////////////////
+
+const preInvoke = async (methodNum: number, params: any[], add2?: boolean) => {
+  logger.info(
+    `Invoking method ${methodNum} from instance [${InstanceAddress.toString()}]`
+  );
+
+  const cborParams = cbor.encode(params);
+  logger.trace("Params encoded");
+
+  const filRPC = new FilecoinRPC({ url: URL, token: TOKEN });
+  const nonce = (await filRPC.getNonce(add2 ? Keys2.address : Keys.address))
+    .result;
+  logger.trace(`Nonce: ${nonce}`);
+
+  let tx = {
+    From: add2 ? Keys2.address : Keys.address,
+    To: InstanceAddress,
+    Value: "0",
+    Method: methodNum,
+    Params: Buffer.from(cborParams).toString("base64"),
+    Nonce: nonce,
+    GasFeeCap: "0",
+    GasPremium: "0",
+    GasLimit: 0,
+  };
+
+  tx = await getFee(filRPC, tx);
+  expect(tx).toBeDefined();
+
+  return { tx, filRPC };
+};
+
+const postInvoke = (sentTx: any, toMatch: RegExp) => {
+  expect(sentTx.result).toBeDefined();
+  expect(sentTx.result.Receipt).toBeDefined();
+  expect(sentTx.result.Receipt.ExitCode).toBe(0);
+
+  const respBuffer = Buffer.from(
+    sentTx.result.Receipt.Return,
+    "base64"
+  ).toString("hex");
+
+  const resp: string = Buffer.from(respBuffer, "hex").toString("ascii");
+
+  logger.info(`Message: ${resp}`);
+
+  expect(typeof resp == "string").toBe(true);
+  expect(resp).toMatch(toMatch);
+};
