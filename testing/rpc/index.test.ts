@@ -18,13 +18,13 @@ const URL = process.env["NODE_URL"];
 const TOKEN = process.env["NODE_TOKEN"];
 const SEED = process.env["SEED"];
 const SEED2 = process.env["SEED2"];
+const ADDRESS_ID_1 = process.env["ADDRESS_ID_1"];
+const ADDRESS_ID_2 = process.env["ADDRESS_ID_2"];
 
 const WASM_ACTOR = "../../fil-erc20-actor.wasm";
 const INIT_ACTOR_ADDRESS = "f01";
 const INIT_ACTOR_INSTALL_METHOD = 3;
 const INIT_ACTOR_CREATE_METHOD = 2;
-const ADDRESS_ID_1 = "1006";
-const ADDRESS_ID_2 = "1001";
 
 let Keys;
 let Keys2;
