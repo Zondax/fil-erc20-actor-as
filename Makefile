@@ -1,10 +1,10 @@
 deps:
 	yarn install
-	cargo install wizer --all-features
+	cargo install wizer --all-features --force
 
 build:
 	yarn asbuild
-	wizer build/release.wasm -f init -o fil-erc20-actor.wasm
+	wizer build/release.wasm -f init -o build/release-final.wasm
 
 test:
 	cd testing/fvm && cargo r
