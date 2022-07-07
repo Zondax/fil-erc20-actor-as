@@ -21,7 +21,7 @@ const SEED2 = process.env["SEED2"];
 const ADDRESS_ID_1 = process.env["ADDRESS_ID_1"];
 const ADDRESS_ID_2 = process.env["ADDRESS_ID_2"];
 
-const WASM_ACTOR = "../../fil-erc20-actor.wasm";
+const WASM_ACTOR = "../../build/release-final.wasm";
 const INIT_ACTOR_ADDRESS = "f01";
 const INIT_ACTOR_INSTALL_METHOD = 3;
 const INIT_ACTOR_CREATE_METHOD = 2;
@@ -393,12 +393,9 @@ const postInvoke = (sentTx: any, toMatch: RegExp) => {
   expect(sentTx.result.Receipt).toBeDefined();
   expect(sentTx.result.Receipt.ExitCode).toBe(0);
 
-  const respBuffer = Buffer.from(
-    sentTx.result.Receipt.Return,
-    "base64"
-  ).toString("hex");
-
-  const resp: string = Buffer.from(respBuffer, "hex").toString("ascii");
+  const resp: string = cbor
+    .decode(Buffer.from(sentTx.result.Receipt.Return, "base64"))
+    .toString();
 
   logger.info(`Message: ${resp}`);
 
