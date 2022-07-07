@@ -45,6 +45,13 @@ pub struct BalanceOfParams {
     pub address: String
 }
 
+fn percentage(a: i64, b: i64) -> i64 {
+    let a_float = a as f64;
+    let b_bloat = b as f64;
+
+    ((a_float-b_bloat)/b_bloat*100.0) as i64
+}
+
 fn run_fvm(path: &str) -> Vec<ApplyRet> {
     let mut result: Vec<ApplyRet> = Vec::new();
     println!("Testing {}", path);
@@ -159,16 +166,16 @@ fn main() {
     println!("Running benchmark");
 
     let res_as_incremental = run_fvm(AS_INCREMENTAL_WASM_COMPILED_PATH);
-    let as_incremental_size = fs::metadata(AS_INCREMENTAL_WASM_COMPILED_PATH).unwrap().len();
+    let as_incremental_size = fs::metadata(AS_INCREMENTAL_WASM_COMPILED_PATH).unwrap().len() as i64;
 
     let res_as_minimal = run_fvm(AS_MINIMAL_WASM_COMPILED_PATH);
-    let as_minimal_size = fs::metadata(AS_MINIMAL_WASM_COMPILED_PATH).unwrap().len();
+    let as_minimal_size = fs::metadata(AS_MINIMAL_WASM_COMPILED_PATH).unwrap().len() as i64;
 
     let res_as_stub = run_fvm(AS_STUB_WASM_COMPILED_PATH);
-    let as_stub_size = fs::metadata(AS_STUB_WASM_COMPILED_PATH).unwrap().len();
+    let as_stub_size = fs::metadata(AS_STUB_WASM_COMPILED_PATH).unwrap().len() as i64;
 
     let res_go = run_fvm(GO_WASM_COMPILED_PATH);
-    let go_size = fs::metadata(GO_WASM_COMPILED_PATH).unwrap().len();
+    let go_size = fs::metadata(GO_WASM_COMPILED_PATH).unwrap().len() as i64;
 
     let gas_used_array_m2 = vec![res_as_incremental[0].msg_receipt.gas_used, res_as_minimal[0].msg_receipt.gas_used, res_as_stub[0].msg_receipt.gas_used, res_go[0].msg_receipt.gas_used];
     let min_gas_used_m2 = gas_used_array_m2.iter().min().unwrap();
@@ -185,28 +192,28 @@ fn main() {
     let mut table = Table::new();
     table.add_row(row!["ACTOR FILE", "GetName (gas)", "GetSymbol (gas)", "GetBalanceOf (gas)", "FILE SIZE"]);
     table.add_row(row!["Assemblyscript (incremental)",
-        format!("{} (+{})", res_as_incremental[0].msg_receipt.gas_used, res_as_incremental[0].msg_receipt.gas_used-min_gas_used_m2),
-        format!("{} (+{})", res_as_incremental[1].msg_receipt.gas_used, res_as_incremental[1].msg_receipt.gas_used-min_gas_used_m3),
-        format!("{} (+{})", res_as_incremental[2].msg_receipt.gas_used, res_as_incremental[2].msg_receipt.gas_used-min_gas_used_m6),
-        format!("{} (+{})", as_incremental_size, as_incremental_size-min_file_size)],
+        format!("{} (+{}%)", res_as_incremental[0].msg_receipt.gas_used, percentage(res_as_incremental[0].msg_receipt.gas_used, *min_gas_used_m2)),
+        format!("{} (+{}%)", res_as_incremental[1].msg_receipt.gas_used, percentage(res_as_incremental[1].msg_receipt.gas_used, *min_gas_used_m3)),
+        format!("{} (+{}%)", res_as_incremental[2].msg_receipt.gas_used, percentage(res_as_incremental[2].msg_receipt.gas_used, *min_gas_used_m6)),
+        format!("{} (+{}%)", as_incremental_size, percentage(as_incremental_size, *min_file_size))],
         );
     table.add_row(row!["Assemblyscript (minimal)",
-        format!("{} (+{})", res_as_minimal[0].msg_receipt.gas_used, res_as_minimal[0].msg_receipt.gas_used-min_gas_used_m2),
-        format!("{} (+{})", res_as_minimal[1].msg_receipt.gas_used, res_as_minimal[1].msg_receipt.gas_used-min_gas_used_m3),
-        format!("{} (+{})", res_as_minimal[2].msg_receipt.gas_used, res_as_minimal[2].msg_receipt.gas_used-min_gas_used_m6),
-        format!("{} (+{})", as_minimal_size, as_minimal_size-min_file_size)],
+        format!("{} (+{}%)", res_as_minimal[0].msg_receipt.gas_used, percentage(res_as_minimal[0].msg_receipt.gas_used, *min_gas_used_m2)),
+        format!("{} (+{}%)", res_as_minimal[1].msg_receipt.gas_used, percentage(res_as_minimal[1].msg_receipt.gas_used, *min_gas_used_m3)),
+        format!("{} (+{}%)", res_as_minimal[2].msg_receipt.gas_used, percentage(res_as_minimal[2].msg_receipt.gas_used, *min_gas_used_m6)),
+        format!("{} (+{}%)", as_minimal_size, percentage(as_minimal_size, *min_file_size))],
     );
     table.add_row(row!["Assemblyscript (stub)",
-        format!("{} (+{})", res_as_stub[0].msg_receipt.gas_used, res_as_stub[0].msg_receipt.gas_used-min_gas_used_m2),
-        format!("{} (+{})", res_as_stub[1].msg_receipt.gas_used, res_as_stub[1].msg_receipt.gas_used-min_gas_used_m3),
-        format!("{} (+{})", res_as_stub[2].msg_receipt.gas_used, res_as_stub[2].msg_receipt.gas_used-min_gas_used_m6),
-        format!("{} (+{})", as_stub_size,  as_stub_size-min_file_size)],
+        format!("{} (+{}%)", res_as_stub[0].msg_receipt.gas_used, percentage(res_as_stub[0].msg_receipt.gas_used, *min_gas_used_m2)),
+        format!("{} (+{}%)", res_as_stub[1].msg_receipt.gas_used, percentage(res_as_stub[1].msg_receipt.gas_used, *min_gas_used_m3)),
+        format!("{} (+{}%)", res_as_stub[2].msg_receipt.gas_used, percentage(res_as_stub[2].msg_receipt.gas_used, *min_gas_used_m6)),
+        format!("{} (+{}%)", as_stub_size, percentage(as_stub_size, *min_file_size))],
     );
     table.add_row(row!["Go actor",
-        format!("{} (+{})", res_go[0].msg_receipt.gas_used, res_go[0].msg_receipt.gas_used-min_gas_used_m2),
-        format!("{} (+{})", res_go[1].msg_receipt.gas_used, res_go[1].msg_receipt.gas_used-min_gas_used_m3),
-        format!("{} (+{})", res_go[2].msg_receipt.gas_used, res_go[2].msg_receipt.gas_used-min_gas_used_m6),
-        format!("{} (+{})",go_size, go_size-min_file_size)],
+        format!("{} (+{}%)", res_go[0].msg_receipt.gas_used, percentage(res_go[0].msg_receipt.gas_used, *min_gas_used_m2)),
+        format!("{} (+{}%)", res_go[1].msg_receipt.gas_used, percentage(res_go[1].msg_receipt.gas_used, *min_gas_used_m3)),
+        format!("{} (+{}%)", res_go[2].msg_receipt.gas_used, percentage(res_go[2].msg_receipt.gas_used, *min_gas_used_m6)),
+        format!("{} (+{}%)",go_size, percentage(go_size, *min_file_size))],
     );
 
     let path = std::path::Path::new("benchmark_results.csv");
