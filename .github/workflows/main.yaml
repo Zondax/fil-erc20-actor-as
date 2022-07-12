@@ -180,6 +180,22 @@ jobs:
           make install-llvm-ci
           make install-tinygo
           make benchmark
+      - name: "Comment results"
+        env:
+          URL: ${{ github.event.pull_request.comments_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd benchmarking
+          pip install csv2md
+          MKD=$(csv2md benchmark_results.csv)
+          BODY=$(jq --null-input --arg body "Benchmark results 🚀📝: 
+          ${MKD}" '{"body": $body}')
+          curl \
+            -X POST \
+            $URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            --data "$BODY"
       - name: "Save results"
         uses: actions/upload-artifact@v3
         with:
