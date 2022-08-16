@@ -16,3 +16,4 @@ assembly/state.ts.source.out
 assembly/index.ts.parsed.out
 assembly/index.ts.source.out
 .vscode
+yarn.lock
