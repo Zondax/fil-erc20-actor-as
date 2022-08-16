@@ -6,10 +6,10 @@ module.exports = {
     "^.+\\.(ts|tsx)?$": "ts-jest",
   },
   modulePathIgnorePatterns: ["<rootDir>/dist/"],
-  roots: ["<rootDir>/testing/rpc/"],
+  roots: ["<rootDir>/tests/rpc/"],
   globals: {
     "ts-jest": {
-      tsconfig: `<rootDir>/testing/rpc/tsconfig.json`,
+      tsconfig: `<rootDir>/tests/rpc/tsconfig.json`,
     },
   },
 };

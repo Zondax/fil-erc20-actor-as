@@ -1,5 +1,14 @@
 # ERC20 AssemblyScript Actor for FVM
 
+This is the another smart contract you should check in order to learn how to create your own one. It implements:
+- Save a maps, string and integers to storage
+- Load that data from storage
+- Create a constructor
+- Export methods with parameters and return values
+
+In particular, this implements all the methods required by the ERC20 guidelines to create a token. 
+So this allows you to have your on token running on FVM. Awesome, right?
+
 This smart contract was built using the FVM SDK for AssemblyScript. Please, go to the [project](https://github.com/Zondax/fvm-as-sdk) in order to know more about it.
 
 ## Development
@@ -285,12 +294,6 @@ Final State
 ```
 
 --- 
-## Other FVM Examples
-### AssemblyScript Examples
-* https://github.com/Zondax/fil-hello-world-actor-as
-* https://github.com/Zondax/fil-fns-actor-as
-### Golang Examples
-* https://github.com/ipfs-force-community/go-fvm-sdk/tree/master/examples
 
-### Rust Examples
-* https://github.com/raulk/fil-hello-world-actor
+## Implementations on other SDKs
+- [GoLang](https://github.com/ipfs-force-community/go-fvm-sdk/tree/master/examples/erc20)
