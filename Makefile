@@ -7,7 +7,7 @@ build:
 	wizer build/release.wasm -f init -o build/release-final.wasm
 
 test:
-	cd testing/fvm && cargo r
+	cd tests/local-vm && cargo r
 
 test-rpc: build
 	yarn tests:rpc
