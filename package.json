@@ -11,9 +11,9 @@
     "tests:rpc": "jest --runInBand"
   },
   "dependencies": {
-    "@zondax/assemblyscript-cbor": "^0.5.1",
-    "@zondax/fvm-as-bindgen": "^0.13.0",
-    "@zondax/fvm-as-sdk": "^0.6.3"
+    "@zondax/assemblyscript-cbor": "^1.0.0",
+    "@zondax/fvm-as-bindgen": "^1.0.0",
+    "@zondax/fvm-as-sdk": "^1.0.0"
   },
   "homepage": "https://github.com/Zondax/fil-erc20-actor-as#readme",
   "private": true,
